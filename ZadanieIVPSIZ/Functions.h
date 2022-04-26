@@ -1,7 +1,10 @@
 #pragma once
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 #include <stdint.h>
+#include <vector>
+#include <bitset>
 #include <ctime>
 #include <iomanip>
 #include <chrono>
