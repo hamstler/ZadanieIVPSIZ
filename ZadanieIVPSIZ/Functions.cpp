@@ -1,6 +1,17 @@
 #include "Functions.h"
 using namespace std;
 
+void printSize(const string& address) {
+    fstream motd(address.c_str(), ios::binary | ios::in | ios::ate);
+    if (motd) {
+        fstream::pos_type size = motd.tellg();
+        cout << size << "B";
+    }
+    else {
+        perror(address.c_str());
+    }
+}
+
 void createFile(const string name, const int count, const char value) {
     int i = 0;
     ofstream MyFile(name);
@@ -69,41 +80,31 @@ void CompareFunction(const char* FirstFile, const char* SecondFile) {
     time_t Starting;
     time_t End;
 
-    ifstream file1, file2;
-    uint8_t size = 0;
-    if (file1.good())
-    {
-        file1.open(FirstFile, ios::binary);
-        file1.read((char*)&size, sizeof(size));
-        file1.close();
-    }
-    else 
-    {
-        cout << "Error with File 1" << endl;
-    }
-       
-
-    uint8_t size2 = 0;
-    if (file2.good())
-    {
-        file2.open(SecondFile, ios::binary);
-        file2.read((char*)&size2, sizeof(size2));
-        file2.close();
-    }
-    else
-    {
-        cout << "Error with File 2" << endl;
-    }
-    cout << endl;
-    cout << "Size: " << (int)size << endl;
-    cout << "Size2: " << (int)size2 << endl;
+    ifstream file1 (FirstFile, ios::binary);
+    ifstream file2 (SecondFile, ios::binary);
+    long long int iloscBitow = 0, ber = 0;
+    char a{};
+    char b{};
 
     Starting = clock();
-    uint8_t ber = calculateHamingDistance(size, size2);
+
+    while (!file1.eof())
+    {
+        file1 >> a;
+        file2 >> b;
+
+        if (file1.eof()) { break; } // dodatkowe zabezpieczenie przed znakiem konca pliku ;]
+
+        iloscBitow = iloscBitow + 8;
+        ber = calculateHamingDistance(a, b) + ber;
+
+    }
+
     End = clock();
     cout << "Time: " << FormattedTimestamp() << endl;
-    cout << "Compared bits :" << (int)size + size2 << endl;
-    cout << "Different bits : " << (int)ber << endl;
+    cout << "Size of file 1 "; printSize(FirstFile);
+    cout << "\nSize of file 2 "; printSize(SecondFile);
+    cout << "\nDifferent bits : " << ber << endl;
     cout << "Calc time : " << OperationTimeCalc(Starting, End) << endl;
 
     //Open log file
@@ -114,9 +115,10 @@ void CompareFunction(const char* FirstFile, const char* SecondFile) {
     if (log.good())
     {
         log << "Time: " << FormattedTimestamp() << endl;
-        log << "Compared bits: " << (int)size + size2 << endl;
-        log << "Different bits: " << (int)ber << endl;
-        log << "Calculation time: " << OperationTimeCalc(Starting, End) << endl;
+        log << "Size of file 1 "; printSize(FirstFile);
+        log << "\nSize of file 2 "; printSize(SecondFile);
+        log << "\nDifferent bits : " << ber << endl;
+        log << "Calc time : " << OperationTimeCalc(Starting, End) << endl;
         log << "End calculation" << endl;
         log.close();
 
